@@ -1,0 +1,20 @@
+{
+  "kind": "singleType",
+  "collectionName": "global_page_stats",
+  "info": {
+    "singularName": "global-page-stat",
+    "pluralName": "global-page-stats",
+    "displayName": "GlobalPageStats"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "statsList": {
+      "type": "component",
+      "component": "shared.stat-item",
+      "repeatable": true
+    }
+  }
+}
