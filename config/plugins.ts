@@ -25,7 +25,8 @@ module.exports = ({ env }) => {
         providerOptions: {
           
           // CRÍTICO: El SDK de AWS busca el endpoint aquí.
-          endpoint: env('R2_ENDPOINT'), 
+          endpoint: env('R2_ENDPOINT'),
+          baseUrl: env('R2_PUBLIC_URL'),
 
           // CORRECCIÓN CLAVE: Agrupar credenciales en 'credentials'
           credentials: { 
