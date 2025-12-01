@@ -21,16 +21,17 @@ export default [
             'data:',
             'blob:',
             'https://market-assets.strapi.io',
-            'https://02a7fbbf035bd49e589f5daebf915d18.r2.cloudflarestorage.com', // << TU ENDPOINT R2 >>
-            // Si también habilitaste el dominio público de desarrollo
-            // 'pub-XXXXXXXXXXXXXXXXXX.r2.dev', 
+            'https://02a7fbbf035bd49e589f5daebf915d18.r2.cloudflarestorage.com',
+            'https://assets.maxchorkie.me'
+            
           ],
           'media-src': [
             "'self'",
             'data:',
             'blob:',
             'https://market-assets.strapi.io',
-            'https://02a7fbbf035bd49e589f5daebf915d18.r2.cloudflarestorage.com', // << TU ENDPOINT R2 >>
+            'https://02a7fbbf035bd49e589f5daebf915d18.r2.cloudflarestorage.com',
+            'https://assets.maxchorkie.me'
           ],
           upgradeInsecureRequests: null,
         },
