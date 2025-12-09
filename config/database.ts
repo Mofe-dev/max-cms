@@ -1,8 +1,3 @@
-// Asegúrate de que este archivo está nombrado como database.js (JavaScript)
-// Si usas TypeScript (database.ts), necesitarás una fase de compilación.
-
-import path from "path";
-
 const { parse } = require('pg-connection-string'); // Necesitas instalarlo
 
 module.exports = ({ env }) => {
@@ -37,15 +32,26 @@ module.exports = ({ env }) => {
     };
   }
 
-  // 3. Fallback: Si no hay DATABASE_URL (Entorno Local/Desarrollo)
-  // Usarás la configuración de SQLite (no persistente en Railway)
+ 
   return {
     connection: {
-      client: 'sqlite',
-      connection: {
-        filename: path.join(__dirname, '..', '..', env('DATABASE_FILENAME', '.tmp/data.db')),
+    client: 'postgres',
+    connection: {
+      host: env('DATABASE_HOST', '127.0.0.1'),
+      port: env.int('DATABASE_PORT', 5432),
+      database: env('DATABASE_NAME', 'max'),
+      user: env('DATABASE_USERNAME', 'felrichdev'),
+      password: env('DATABASE_PASSWORD', ''),
+      ssl: env.bool('DATABASE_SSL', false) && {
+        rejectUnauthorized: env.bool('DATABASE_SSL_REJECT_UNAUTHORIZED', false),
       },
-      useNullAsDefault: true,
+      schema: env('DATABASE_SCHEMA', 'public'),
     },
+    debug: false,
+    pool: {
+      min: env.int('DATABASE_POOL_MIN', 2),
+      max: env.int('DATABASE_POOL_MAX', 10),
+    },
+  },
   };
 };
