@@ -45,6 +45,45 @@ module.exports = ({ env }) => {
         },
         actionOptions: {
           upload: {},
+          transform:{
+            // FORZAR FORMATO: Convertir cualquier entrada (HEIF, JPEG, PNG) a WebP
+          default: [{
+            // Opciones de procesamiento Sharp que se aplicarán por defecto
+            format: 'webp', // SALIDA: Todos los formatos serán WebP
+            // CALIDAD: Compresión al 80% (Punto óptimo)
+            webp: {
+              quality: 80, 
+            },
+          }],
+            // DEFINIR ANCHOS MÁXIMOS Y FORMATOS ESPECÍFICOS
+          // Esta sección es CRÍTICA para evitar subir archivos de 5000px y reducir costos.
+          formats: [
+            // 1. FORMATO ORIGINAL OPTIMIZADO: Máximo 2560px
+            // Strapi guardará la imagen original de la subida con estas reglas:
+            {
+              name: 'large', // Sobreescribimos el formato 'large' o creamos uno nuevo
+              // Redimensionar si es necesario (conserva la relación de aspecto)
+              // La imagen se redimensiona proporcionalmente para que el lado más largo sea 2560px
+              width: 2560, 
+              // Convertir a WebP con calidad 80 (ya definido en 'default')
+            },
+            
+            // 2. FORMATO MEDIUM: Para la mayoría de las visualizaciones en escritorio
+            {
+              name: 'medium',
+              width: 750, // Ancho 750px (proporcional)
+              // Convierte a WebP calidad 80
+            },
+            
+            // 3. FORMATO THUMBNAIL: Miniaturas rápidas para listados
+            {
+              name: 'thumbnail',
+              width: 250, // Ancho 250px
+              // Convierte a WebP calidad 80
+            }
+            // Los formatos 'large', 'medium' y 'thumbnail' se aplicarán SÓLO si la imagen es mayor
+          ],
+          },
           uploadStream: {},
           delete: {},
         },
