@@ -64,7 +64,9 @@ module.exports = ({ env }) => {
               name: 'large', // Sobreescribimos el formato 'large' o creamos uno nuevo
               // Redimensionar si es necesario (conserva la relación de aspecto)
               // La imagen se redimensiona proporcionalmente para que el lado más largo sea 2560px
-              width: 2560, 
+              width: 2560,
+              format: 'webp',
+              webp: {quality: 80}
               // Convertir a WebP con calidad 80 (ya definido en 'default')
             },
             
