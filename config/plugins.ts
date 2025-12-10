@@ -1,93 +1,81 @@
-// ./config/plugins.js (Asegúrate de que no es .ts si no lo estás compilando)
+// Archivo: ./config/plugins.js
 
 module.exports = ({ env }) => {
-  
-  // 1. Detectar si estamos en producción (o cualquier entorno que no sea desarrollo)
-  // Nota: Railway establece NODE_ENV=production automáticamente.
   const isProduction = env('NODE_ENV') === 'production';
   
-  // 2. Si NO es producción, usar el proveedor local.
+  // Si NO es producción, usar proveedor local
   if (!isProduction) {
     return {
       upload: {
         config: {
-          provider: 'local', // Usa el almacenamiento local por defecto
+          provider: 'local',
         },
       },
     };
   }
 
-  // 3. Si es producción, usar el proveedor R2/S3
+  // Si es producción, usar R2/S3
   return {
     upload: {
       config: {
+        // 1. CONFIGURACIÓN DEL PROVEEDOR (R2)
         provider: 'aws-s3',
         providerOptions: {
-          
-          // CRÍTICO: El SDK de AWS busca el endpoint aquí.
           endpoint: env('R2_ENDPOINT'),
           baseUrl: env('R2_PUBLIC_URL'),
-
-          // CORRECCIÓN CLAVE: Agrupar credenciales en 'credentials'
           credentials: { 
             accessKeyId: env('R2_ACCESS_KEY_ID'),
             secretAccessKey: env('R2_ACCESS_KEY_SECRET'),
           },
-          
           params: {
             Bucket: env('R2_BUCKET'),
           },
-          
           forcePathStyle: env.bool('R2_FORCE_PATH_STYLE', true),
-          
-          // La región es necesaria para el SDK de AWS, incluso si R2 no la usa.
           region: env('R2_REGION', 'auto'), 
         },
-        actionOptions: {
-          upload: {},
-          transform:{
-            // FORZAR FORMATO: Convertir cualquier entrada (HEIF, JPEG, PNG) a WebP
-          default: [{
-            // Opciones de procesamiento Sharp que se aplicarán por defecto
-            format: 'webp', // SALIDA: Todos los formatos serán WebP
-            // CALIDAD: Compresión al 80% (Punto óptimo)
-            webp: {
-              quality: 80, 
-            },
-          }],
-            // DEFINIR ANCHOS MÁXIMOS Y FORMATOS ESPECÍFICOS
-          // Esta sección es CRÍTICA para evitar subir archivos de 5000px y reducir costos.
-          formats: [
-            // 1. FORMATO ORIGINAL OPTIMIZADO: Máximo 2560px
-            // Strapi guardará la imagen original de la subida con estas reglas:
-            {
-              name: 'large', // Sobreescribimos el formato 'large' o creamos uno nuevo
-              // Redimensionar si es necesario (conserva la relación de aspecto)
-              // La imagen se redimensiona proporcionalmente para que el lado más largo sea 2560px
-              width: 2560,
-              format: 'webp',
-              webp: {quality: 80}
-              // Convertir a WebP con calidad 80 (ya definido en 'default')
-            },
-            
-            // 2. FORMATO MEDIUM: Para la mayoría de las visualizaciones en escritorio
-            {
-              name: 'medium',
-              width: 750, // Ancho 750px (proporcional)
-              // Convierte a WebP calidad 80
-            },
-            
-            // 3. FORMATO THUMBNAIL: Miniaturas rápidas para listados
-            {
-              name: 'thumbnail',
-              width: 250, // Ancho 250px
-              // Convierte a WebP calidad 80
-            }
-            // Los formatos 'large', 'medium' y 'thumbnail' se aplicarán SÓLO si la imagen es mayor
-          ],
+        
+        // 2. CONFIGURACIÓN DE OPTIMIZACIÓN DE SHARP (DENTRO DE 'config')
+        
+        // Limitar tamaño de subida a 10MB
+        sizeLimit: 10000000, 
+        
+        // Habilitar la generación de formatos responsive
+        responsiveDimensions: true, 
+        
+        // Ajuste fino: Desactivar corrección de orientación automática
+        autoOrientation: false, 
+        
+        // 🚨 CONFIGURACIÓN CRÍTICA: Definir la compresión y el formato para TODOS
+        // Esto se logra usando 'sharpOptions' o 'actionOptions' (depende de tu versión de Strapi),
+        // pero la forma más compatible es forzarlo en el post-procesamiento.
+        
+        // Para versiones más nuevas de Strapi (>4.x), la configuración se hace en 'breakpoints'
+        breakpoints: {
+          // LARGE: La imagen 'original' optimizada
+          large: {
+            width: 2560,
+            // 🚨 AÑADIDO: Opciones para forzar WebP y Calidad 80 para este formato
+            format: 'webp',
+            quality: 80,
           },
-          uploadStream: {},
-          delete: {},
+          // MEDIUM:
+          medium: {
+            width: 750,
+            format: 'webp',
+            quality: 80,
+          },
+          // SMALL:
+          small: {
+            width: 500,
+            format: 'webp',
+            quality: 80,
+          },
+          // THUMBNAIL:
+          thumbnail: {
+            width: 200,
+            format: 'webp',
+            quality: 80,
+          },
         },
       },
     },
